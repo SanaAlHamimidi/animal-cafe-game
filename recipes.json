@@ -1,0 +1,30 @@
+{
+  "Cupcake": {
+    "ingredients": ["flour", "sugar", "butter", "egg"],
+    "description": "A sweet little cupcake with frosting"
+  },
+  "Cookie": {
+    "ingredients": ["flour", "sugar", "butter"],
+    "description": "A classic golden cookie"
+  },
+  "Muffin": {
+    "ingredients": ["flour", "sugar", "egg", "milk"],
+    "description": "A fluffy muffin, perfect for morning"
+  },
+  "Croissant": {
+    "ingredients": ["flour", "butter", "milk"],
+    "description": "A buttery, flaky croissant"
+  },
+  "Cake Pop": {
+    "ingredients": ["flour", "sugar", "butter", "egg", "sprinkles"],
+    "description": "A fun cake on a stick with sprinkles"
+  },
+  "Pancake": {
+    "ingredients": ["flour", "egg", "milk", "sugar"],
+    "description": "Fluffy pancakes stacked high"
+  },
+  "Brownie": {
+    "ingredients": ["flour", "sugar", "butter", "egg", "chocolate"],
+    "description": "A rich, fudgy brownie square"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "cat": {
+    "favorite_items": ["Cupcake", "Croissant"],
+    "disliked_items": ["Brownie"],
+    "personality": "refined and picky"
+  },
+  "dog": {
+    "favorite_items": ["Cookie", "Brownie"],
+    "disliked_items": [],
+    "personality": "enthusiastic and easy to please"
+  },
+  "bunny": {
+    "favorite_items": ["Muffin", "Pancake"],
+    "disliked_items": ["Brownie"],
+    "personality": "gentle and sweet"
+  },
+  "bear": {
+    "favorite_items": ["Brownie", "Pancake", "Cake Pop"],
+    "disliked_items": [],
+    "personality": "big appetite, always happy with extra"
+  },
+  "fox": {
+    "favorite_items": ["Croissant", "Cookie"],
+    "disliked_items": ["Muffin"],
+    "personality": "clever and quick to judge"
+  }
+}
