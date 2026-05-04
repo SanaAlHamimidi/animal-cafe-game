@@ -3,28 +3,32 @@
     "ingredients": ["flour", "sugar", "butter", "egg"],
     "description": "A sweet little cupcake with frosting"
   },
-  "Cookie": {
-    "ingredients": ["flour", "sugar", "butter"],
-    "description": "A classic golden cookie"
+  "Fish Cake": {
+    "ingredients": ["flour", "egg", "milk", "fish"],
+    "description": "A whimsical fish-shaped cake for curious cats"
   },
-  "Muffin": {
-    "ingredients": ["flour", "sugar", "egg", "milk"],
-    "description": "A fluffy muffin, perfect for morning"
+  "Carrot Muffin": {
+    "ingredients": ["flour", "egg", "milk", "carrot"],
+    "description": "A cozy carrot muffin that bunnies love"
   },
-  "Croissant": {
-    "ingredients": ["flour", "butter", "milk"],
-    "description": "A buttery, flaky croissant"
+  "Berry Tart": {
+    "ingredients": ["flour", "butter", "berries", "sugar"],
+    "description": "A sharp little tart for fast foxes"
   },
-  "Cake Pop": {
-    "ingredients": ["flour", "sugar", "butter", "egg", "sprinkles"],
-    "description": "A fun cake on a stick with sprinkles"
+  "Berry Bread": {
+    "ingredients": ["flour", "milk", "berries", "sugar"],
+    "description": "A soft berry bread loaf made for patient sloths"
   },
   "Pancake": {
     "ingredients": ["flour", "egg", "milk", "sugar"],
     "description": "Fluffy pancakes stacked high"
   },
-  "Brownie": {
-    "ingredients": ["flour", "sugar", "butter", "egg", "chocolate"],
-    "description": "A rich, fudgy brownie square"
+  "Latte": {
+    "ingredients": ["espresso shot", "steamed milk"],
+    "description": "A smooth latte with espresso and steamed milk"
+  },
+  "Coffee": {
+    "ingredients": ["espresso shot"],
+    "description": "A bold black coffee pulled from the espresso machine"
   }
 }

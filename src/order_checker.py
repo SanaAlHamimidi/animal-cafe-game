@@ -13,8 +13,8 @@ class OrderChecker:
         self.orders_completed = 0
         self.orders_missed = 0
 
-    def check_order(self, required_ingredients: list, player_ingredients: list,
-                    patience_ratio: float) -> dict:
+    def _evaluate_order(self, required_ingredients: list, player_ingredients: list,
+                        patience_ratio: float) -> dict:
         """
         Compare player's assembled ingredients against the required ones.
 
@@ -53,18 +53,29 @@ class OrderChecker:
             result = "miss"
             message = f"Wrong order! {points} pts"
 
-        self.total_score = max(0, self.total_score + points)
+        return {"result": result, "points": points, "message": message}
 
-        if result in ("perfect", "good"):
+    def preview_check_order(self, required_ingredients: list, player_ingredients: list,
+                            patience_ratio: float) -> dict:
+        """Preview score/result for matching without mutating totals."""
+        return self._evaluate_order(required_ingredients, player_ingredients, patience_ratio)
+
+    def check_order(self, required_ingredients: list, player_ingredients: list,
+                    patience_ratio: float) -> dict:
+        """Apply order result to score and completion counters."""
+        outcome = self._evaluate_order(required_ingredients, player_ingredients, patience_ratio)
+        self.total_score += outcome["points"]
+
+        if outcome["result"] in ("perfect", "good"):
             self.orders_completed += 1
         else:
             self.orders_missed += 1
 
-        return {"result": result, "points": points, "message": message}
+        return outcome
 
     def customer_left_without_serving(self):
         """Called when a customer's patience runs out."""
-        self.total_score = max(0, self.total_score + POINTS_MISS)
+        self.total_score += POINTS_MISS
         self.orders_missed += 1
 
     def get_summary(self) -> dict:
