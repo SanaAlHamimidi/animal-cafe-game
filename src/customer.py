@@ -1,7 +1,3 @@
-"""
-customer.py - Handles animal customers, their moods, and orders
-Owner: Zara
-"""
 import random
 import os
 import arcade
@@ -10,14 +6,14 @@ from src.constants import (
     HAPPY_TIME, IMPATIENT_TIME, NORMAL_TIME, FONT_UI
 )
 
-
+# drawing the rectangles for the speech bubble and the patience bar
 def draw_rect(cx, cy, w, h, color):
     try:
         arcade.draw_rectangle_filled(cx, cy, w, h, color)
     except AttributeError:
         arcade.draw_lbwh_rectangle_filled(cx - w / 2, cy - h / 2, w, h, color)
 
-
+# drawing the outline of the rectangles for the speech bubble and the patience bar
 def draw_rect_outline(cx, cy, w, h, color, border=2):
     try:
         arcade.draw_rectangle_outline(cx, cy, w, h, color, border)
@@ -26,10 +22,10 @@ def draw_rect_outline(cx, cy, w, h, color, border=2):
 
 
 class Customer:
-    """Represents an animal customer visiting the cafe."""
-
+    # This class is used to create the customers that visit the cafe
     ANIMAL_TYPES = ["cat", "otter", "bunny", "fox", "sloth"]
     MOOD_OPTIONS = [MOOD_HAPPY, MOOD_IMPATIENT, MOOD_NORMAL]
+    # types of food 
     SWEET_KEYWORDS = ("cake", "cookie", "muffin", "brownie", "tart", "cupcake", "roll", "pancake", "croissant", "pop")
     TEXTURE_FILES = {
         "cat": "cat.png",
@@ -39,6 +35,8 @@ class Customer:
         "sloth": "sloth.png",
     }
     ORDER_BUBBLE_FILE = "order_bubble.png"
+
+    # this helps w giving each mood a visible personality in the bubble
     MOOD_EMOTICONS = {
         MOOD_HAPPY: ["( ˶ˆᗜˆ˵ )"],
         MOOD_IMPATIENT: ["૮(¬ ‸ ¬\")ა", "(•̀⤙•́ )"],
@@ -49,6 +47,7 @@ class Customer:
     _bubble_texture = None
     _bubble_sprite = None
 
+    # this is the constructor for the Customer class
     def __init__(
         self,
         x: float,
@@ -64,6 +63,7 @@ class Customer:
         self.recipes = recipes
         self.animal_preferences = animal_preferences or {}
 
+        # this helps w giving each customer a unique animal type
         available_animals = list(self.animal_preferences.keys()) or self.ANIMAL_TYPES
         if preferred_animal_type in available_animals:
             self.animal_type = preferred_animal_type
@@ -71,6 +71,7 @@ class Customer:
             self.animal_type = random.choice(available_animals)
         self.profile = self.animal_preferences.get(self.animal_type, {})
         self.mood = self._pick_mood()
+
         # this helps w giving each mood a visible personality in the bubble
         self.mood_text = random.choice(self.MOOD_EMOTICONS.get(self.mood, [":|"]))
         self.order = self._pick_order()
@@ -83,6 +84,7 @@ class Customer:
         self.is_served = False
         self.is_leaving = False
 
+    # Loading the textures for the animals
     @classmethod
     def _load_texture_for_animal(cls, animal_type: str):
         if animal_type in cls._texture_cache:
@@ -104,6 +106,7 @@ class Customer:
         cls._texture_cache[animal_type] = texture
         return texture
 
+    # Creating the sprite for the animal
     @classmethod
     def _create_sprite_for_animal(cls, animal_type: str):
         if animal_type in cls._sprite_cache:
@@ -130,6 +133,7 @@ class Customer:
         cls._sprite_cache[animal_type] = sprite
         return sprite
 
+    # Loading the texture for the order bubble
     @classmethod
     def _load_order_bubble_texture(cls):
         if cls._bubble_texture is not None:
@@ -146,6 +150,7 @@ class Customer:
             cls._bubble_texture = None
         return cls._bubble_texture
 
+    # Creating the sprite for the order bubble
     @classmethod
     def _get_order_bubble_sprite(cls):
         if cls._bubble_sprite is not None:
@@ -168,6 +173,7 @@ class Customer:
             cls._bubble_sprite = None
         return cls._bubble_sprite
 
+    # Picking the mood for the customer
     def _pick_mood(self) -> str:
         mood_weights = self.profile.get("mood_weights", {})
         if isinstance(mood_weights, dict):
@@ -184,6 +190,7 @@ class Customer:
             return preferred_mood
         return random.choice(self.MOOD_OPTIONS)
 
+    # Picking the order for the customer
     def _pick_order(self) -> str:
         favorites = [item for item in self.profile.get("favorite_items", []) if item in self.recipes]
         disliked = set(self.profile.get("disliked_items", []))
@@ -199,10 +206,12 @@ class Customer:
             return random.choice(sweet_orders)
         return random.choice(allowed_orders)
 
+    # Checking if the item is sweet
     def _is_sweet_item(self, item_name: str) -> bool:
         name = item_name.lower()
         return any(word in name for word in self.SWEET_KEYWORDS)
 
+    # Getting the time limit for the customer
     def _get_time_limit(self) -> float:
         mood_times = {
             MOOD_HAPPY: HAPPY_TIME,
@@ -339,6 +348,7 @@ class Customer:
             bold=True,
         )
 
+    # Drawing the patience bar for the customer
     def _draw_patience_bar(self):
         bar_width = 80
         ratio = self.get_patience_ratio()

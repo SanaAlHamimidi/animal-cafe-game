@@ -28,7 +28,7 @@
     "description": "A smooth latte with espresso and steamed milk"
   },
   "Coffee": {
-    "ingredients": ["espresso shot"],
-    "description": "A bold black coffee pulled from the espresso machine"
+    "ingredients": ["espresso shot", "steamed milk"],
+    "description": "A creamy coffee made with espresso and steamed milk"
   }
 }

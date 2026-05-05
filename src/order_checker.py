@@ -1,31 +1,20 @@
-"""
-order_checker.py - Validates player-assembled orders and awards points
-Owner: Sana
-"""
+# order_checker.py - Validates player-assembled orders and awards points
+# Owner: Sana
 from src.constants import POINTS_PERFECT, POINTS_GOOD, POINTS_MISS
 
 
 class OrderChecker:
-    """Checks whether the player's assembled order matches the customer's request."""
+    # Checks whether the player's assembled order matches the customer's request.
 
     def __init__(self):
+        # Running totals for the current round.
         self.total_score = 0
         self.orders_completed = 0
         self.orders_missed = 0
 
     def _evaluate_order(self, required_ingredients: list, player_ingredients: list,
                         patience_ratio: float) -> dict:
-        """
-        Compare player's assembled ingredients against the required ones.
-
-        Args:
-            required_ingredients: List of ingredient names the customer wants.
-            player_ingredients:   List of ingredient names the player selected.
-            patience_ratio:       0.0–1.0 representing remaining patience.
-
-        Returns:
-            dict with keys: 'result' (str), 'points' (int), 'message' (str)
-        """
+        # Compare player's assembled ingredients against the required ones.
         required_set = set(required_ingredients)
         player_set = set(player_ingredients)
 
@@ -48,7 +37,7 @@ class OrderChecker:
                 parts.append(f"Extra: {', '.join(extra)}")
             message = f"Close! +{points} pts. " + " | ".join(parts)
         else:
-            # Wrong order
+            # Wrong order (ingredients do not substantially overlap).
             points = POINTS_MISS
             result = "miss"
             message = f"Wrong order! {points} pts"
@@ -57,12 +46,13 @@ class OrderChecker:
 
     def preview_check_order(self, required_ingredients: list, player_ingredients: list,
                             patience_ratio: float) -> dict:
-        """Preview score/result for matching without mutating totals."""
+        # Preview score/result for matching without mutating totals.
         return self._evaluate_order(required_ingredients, player_ingredients, patience_ratio)
 
     def check_order(self, required_ingredients: list, player_ingredients: list,
                     patience_ratio: float) -> dict:
-        """Apply order result to score and completion counters."""
+        # Apply order result to score and completion counters.
+        # Evaluate first, then commit to score/counter changes.
         outcome = self._evaluate_order(required_ingredients, player_ingredients, patience_ratio)
         self.total_score += outcome["points"]
 
@@ -74,12 +64,13 @@ class OrderChecker:
         return outcome
 
     def customer_left_without_serving(self):
-        """Called when a customer's patience runs out."""
+        # Called when a customer's patience runs out.
+        # Miss penalty applies if customer leaves before being served.
         self.total_score += POINTS_MISS
         self.orders_missed += 1
 
     def get_summary(self) -> dict:
-        """Return end-of-game stats."""
+        # Return end-of-game stats.
         total = self.orders_completed + self.orders_missed
         accuracy = (self.orders_completed / total * 100) if total > 0 else 0
         return {

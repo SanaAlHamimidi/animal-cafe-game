@@ -1,7 +1,5 @@
-"""
-game.py - Main game window with menu, gameplay, and end screen states
-Owner: Sana (setup, scoring, timer) & Zara (customers, UI)
-"""
+# game.py - Main game window with menu, gameplay, and end screen states
+
 import arcade
 import json
 import random
@@ -16,14 +14,14 @@ from src.customer import Customer
 from src.order_checker import OrderChecker
 from src.ingredient_tray import IngredientTray
 
-
+# this is the directory for the data
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 GAME_DURATION = 180  # seconds per round
 MACHINE_ONLY_INGREDIENTS = {"espresso shot", "steamed milk"}
 
 
 def draw_rect(cx, cy, w, h, color):
-    """Draw a filled rectangle — works with Arcade 2.x and 3.x."""
+    # Drawing the rectangles for the menu, game, and end screen
     try:
         arcade.draw_rectangle_filled(cx, cy, w, h, color)
     except AttributeError:
@@ -31,7 +29,7 @@ def draw_rect(cx, cy, w, h, color):
 
 
 def draw_rect_outline(cx, cy, w, h, color, border=2):
-    """Draw a rectangle outline — works with Arcade 2.x and 3.x."""
+    # Drawing the outlines of the rectangles for the menu, game, and end screen
     try:
         arcade.draw_rectangle_outline(cx, cy, w, h, color, border)
     except AttributeError:
@@ -39,7 +37,7 @@ def draw_rect_outline(cx, cy, w, h, color, border=2):
 
 
 class AnimalCafeGame(arcade.Window):
-    """Main game window managing all states and game logic."""
+    # this is the constructor for the AnimalCafeGame class
 
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
@@ -64,15 +62,21 @@ class AnimalCafeGame(arcade.Window):
         self.recipe_btn_y = 620
         self.recipe_btn_w = 120
         self.recipe_btn_h = 42
+        self.end_btn_x = 920
+        self.end_btn_y = 572
+        self.end_btn_w = 120
+        self.end_btn_h = 38
         self.last_spawned_animal = None
         self.decor_textures = {}
         self.decor_sprites = {}
 
     def setup(self):
+        # One-time game boot sequence: load JSON then initialize runtime state.
         self._load_data()
         self._reset_game()
 
     def _load_data(self):
+        # Read recipe + personality config from data files.
         recipes_path = os.path.join(DATA_DIR, "recipes.json")
         preferences_path = os.path.join(DATA_DIR, "animal_preferences.json")
         try:
@@ -91,6 +95,7 @@ class AnimalCafeGame(arcade.Window):
                 self.animal_preferences = json.load(f)
         except FileNotFoundError:
             self.animal_preferences = {}
+        # Build a tray list from recipe ingredients, excluding machine-only drink items.
         seen = set()
         for recipe in self.recipes.values():
             for ing in recipe["ingredients"]:
@@ -99,6 +104,7 @@ class AnimalCafeGame(arcade.Window):
         self.all_ingredients = sorted(list(seen))
 
     def _reset_game(self):
+        # Reset all per-round values so replay starts clean.
         self.customers = []
         self.order_checker = OrderChecker()
         self.tray = IngredientTray(self.all_ingredients)
@@ -114,7 +120,8 @@ class AnimalCafeGame(arcade.Window):
         if len(self.customers) >= 3:
             return
         x_positions = [200, 450, 700]
-        occupied = {int(c.x) for c in self.customers}
+        # Reserve lanes by destination so arriving customers don't overlap later.
+        occupied = {int(c.target_x) for c in self.customers}
         available = [x for x in x_positions if x not in occupied]
         if not available:
             return
@@ -141,20 +148,24 @@ class AnimalCafeGame(arcade.Window):
     def on_update(self, delta_time: float):
         if self.state != STATE_PLAYING:
             return
+        # Global round timer.
         self.game_time_remaining -= delta_time
         if self.game_time_remaining <= 0:
             self.game_time_remaining = 0
             self.state = STATE_GAME_OVER
             return
+        # Update each customer and apply miss penalty when one leaves.
         for customer in self.customers[:]:
             customer.update(delta_time)
             if customer.is_leaving:
                 self.order_checker.customer_left_without_serving()
                 self.customers.remove(customer)
+        # Spawn loop keeps up to 3 active lanes.
         self.spawn_timer += delta_time
         if self.spawn_timer >= self.spawn_interval:
             self.spawn_timer = 0.0
             self._spawn_customer()
+        # Feedback message auto-clears after a short duration.
         if self.feedback_timer > 0:
             self.feedback_timer -= delta_time
             if self.feedback_timer <= 0:
@@ -187,6 +198,7 @@ class AnimalCafeGame(arcade.Window):
             customer.draw()
         self.tray.draw()
         self._draw_recipe_button()
+        self._draw_end_game_button()
         if self.show_recipe_book:
             self._draw_recipe_book()
         arcade.draw_text(f"Score: {self.order_checker.total_score}",
@@ -197,11 +209,22 @@ class AnimalCafeGame(arcade.Window):
                          SCREEN_WIDTH - 18, SCREEN_HEIGHT - 40, COLOR_TEXT, 22,
                          bold=True, font_name=FONT_UI, anchor_x="right")
         if self.feedback_message:
-            arcade.draw_text(self.feedback_message, SCREEN_WIDTH // 2, 200,
-                             arcade.color.DARK_GREEN, 20, anchor_x="center", bold=True, font_name=FONT_UI)
+            feedback_y = SCREEN_HEIGHT // 2 - 40
+            draw_rect(SCREEN_WIDTH // 2, feedback_y + 10, 460, 52, (255, 248, 230))
+            draw_rect_outline(SCREEN_WIDTH // 2, feedback_y + 10, 460, 52, (120, 80, 50), 2)
+            arcade.draw_text(
+                self.feedback_message,
+                SCREEN_WIDTH // 2,
+                feedback_y,
+                arcade.color.DARK_GREEN,
+                22,
+                anchor_x="center",
+                bold=True,
+                font_name=FONT_UI,
+            )
 
     def _draw_kitchen(self):
-        """Draw decorative kitchen elements in the gameplay background."""
+  
         # Customer lane wall and bottom kitchen floor.
         draw_rect(SCREEN_WIDTH // 2, 510, SCREEN_WIDTH, 380, (247, 228, 201))
         draw_rect(SCREEN_WIDTH // 2, 220, SCREEN_WIDTH, 160, (230, 186, 140))
@@ -293,8 +316,22 @@ class AnimalCafeGame(arcade.Window):
         arcade.draw_text(label, self.recipe_btn_x, self.recipe_btn_y - 8,
                          arcade.color.WHITE, 14, anchor_x="center", bold=True, font_name=FONT_UI)
 
+    def _draw_end_game_button(self):
+        # Button lets player end the round early.
+        draw_rect(self.end_btn_x, self.end_btn_y, self.end_btn_w, self.end_btn_h, (185, 84, 72))
+        draw_rect_outline(self.end_btn_x, self.end_btn_y, self.end_btn_w, self.end_btn_h, (115, 45, 38), 2)
+        arcade.draw_text(
+            "End Game",
+            self.end_btn_x,
+            self.end_btn_y - 7,
+            arcade.color.WHITE,
+            13,
+            anchor_x="center",
+            bold=True,
+            font_name=FONT_UI,
+        )
+
     def _recipe_lines(self, name: str, ingredients: list, max_chars: int = 40) -> list:
-        """Return one or two readable lines for a recipe entry."""
         parts = [str(p) for p in ingredients]
         prefix = f"{name}: "
         line1 = prefix
@@ -356,14 +393,22 @@ class AnimalCafeGame(arcade.Window):
 
     def on_mouse_press(self, x, y, button, modifiers):
         if self.state == STATE_MENU:
+            # Start button in menu.
             if abs(x - SCREEN_WIDTH // 2) <= 100 and abs(y - 260) <= 30:
                 self._reset_game()
                 self.state = STATE_PLAYING
         elif self.state == STATE_PLAYING:
+            # Recipe toggle button in top-right.
             if (abs(x - self.recipe_btn_x) <= self.recipe_btn_w / 2 and
                     abs(y - self.recipe_btn_y) <= self.recipe_btn_h / 2):
                 self.show_recipe_book = not self.show_recipe_book
                 return
+            # End button jumps straight to game-over screen.
+            if (abs(x - self.end_btn_x) <= self.end_btn_w / 2 and
+                    abs(y - self.end_btn_y) <= self.end_btn_h / 2):
+                self.state = STATE_GAME_OVER
+                return
+            # Tray handles ingredient toggles, machine clicks, and submit click.
             action = self.tray.on_click(x, y)
             if action and action.startswith("machine:"):
                 machine_item = action.split(":", 1)[1]
@@ -373,12 +418,12 @@ class AnimalCafeGame(arcade.Window):
             if action == "submit":
                 self._handle_submit()
         elif self.state == STATE_GAME_OVER:
+            # Play-again button on end screen.
             if abs(x - SCREEN_WIDTH // 2) <= 110 and abs(y - 220) <= 30:
                 self._reset_game()
                 self.state = STATE_PLAYING
 
     def on_key_press(self, symbol, modifiers):
-        """Keyboard shortcuts for quick play and proposal coverage."""
         if self.state == STATE_MENU:
             if symbol in (arcade.key.ENTER, arcade.key.SPACE):
                 self._reset_game()
@@ -414,30 +459,36 @@ class AnimalCafeGame(arcade.Window):
             self.feedback_timer = 2.0
             return
 
-        # did this in order to let players serve in any order (not only left->right)
-        # 1) Prefer exact matches; 2) otherwise pick the customer with best points.
+        # Let players serve any customer by choosing the strongest ingredient match.
         selected_set = set(player_ingredients)
-        exact_matches = [
-            c for c in self.customers
-            if set(c.get_required_ingredients()) == selected_set
-        ]
-        if exact_matches:
-            customer = exact_matches[0]
-        else:
-            customer = max(
-                self.customers,
-                key=lambda c: self.order_checker.preview_check_order(
-                    c.get_required_ingredients(),
-                    player_ingredients,
-                    c.get_patience_ratio(),
-                )["points"],
+        result_rank = {"perfect": 2, "good": 1, "miss": 0}
+
+        def customer_match_score(c: Customer):
+            # Preview score without mutating totals, then rank best target customer.
+            preview = self.order_checker.preview_check_order(
+                c.get_required_ingredients(),
+                player_ingredients,
+                c.get_patience_ratio(),
             )
+            required_set = set(c.get_required_ingredients())
+            overlap = len(required_set.intersection(selected_set))
+            # Prefer better outcome first, then points, then ingredient overlap.
+            return (
+                result_rank.get(preview["result"], 0),
+                preview["points"],
+                overlap,
+                c.get_patience_ratio(),
+            )
+
+        # Choose the customer with the strongest evaluated match.
+        customer = max(self.customers, key=customer_match_score)
 
         result = self.order_checker.check_order(
             customer.get_required_ingredients(),
             player_ingredients,
             customer.get_patience_ratio(),
         )
+        # Apply result to UI/game state and prep next order.
         self.feedback_message = result["message"]
         self.feedback_timer = 2.5
         customer.is_served = True

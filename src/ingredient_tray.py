@@ -1,7 +1,5 @@
-"""
-ingredient_tray.py - Manages clickable ingredients the player can select
-Owner: Zara
-"""
+# ingredient_tray.py - Manages clickable ingredients the player can select
+# Owner: Zara
 import arcade
 import math
 from src.constants import FONT_UI
@@ -22,7 +20,7 @@ def draw_rect_outline(cx, cy, w, h, color, border=2):
 
 
 class Ingredient:
-    """A clickable ingredient on the tray."""
+    # A clickable ingredient on the tray.
 
     def __init__(self, name: str, x: float, y: float, width=110, height=44):
         self.name = name
@@ -49,11 +47,12 @@ class Ingredient:
 
 
 class IngredientTray:
-    """Displays all available ingredients at the bottom of the screen."""
+    # Displays all available ingredients at the bottom of the screen.
 
     def __init__(self, all_ingredients: list, start_x=90, top_row_y=96, spacing=125):
         self.ingredients = []
         self.machine_selected = set()
+        # Arrange ingredient buttons in a compact grid.
         max_columns = 6
         row_gap = 52
         for i, name in enumerate(all_ingredients):
@@ -80,6 +79,7 @@ class IngredientTray:
         return math.hypot(x - bx, y - by) <= self.machine_radius
 
     def on_click(self, x: float, y: float):
+        # Regular ingredient buttons.
         for ing in self.ingredients:
             if ing.is_clicked(x, y):
                 ing.toggle()
@@ -97,12 +97,14 @@ class IngredientTray:
         return None
 
     def _toggle_machine_ingredient(self, ingredient_name: str):
+        # Clicking again removes the machine ingredient (toggle behavior).
         if ingredient_name in self.machine_selected:
             self.machine_selected.remove(ingredient_name)
         else:
             self.machine_selected.add(ingredient_name)
 
     def update_hover(self, x: float, y: float):
+        # Track hover state so we can show context labels near machine buttons.
         if self._machine_button_clicked(x, y, self.espresso_x, self.espresso_y):
             self.hover_machine = "coffee"
         elif self._machine_button_clicked(x, y, self.milk_x, self.milk_y):
@@ -116,11 +118,13 @@ class IngredientTray:
         return selected + sorted(self.machine_selected)
 
     def clear_selection(self):
+        # Clear both tray selections and drink machine selections after serve/reset.
         for ing in self.ingredients:
             ing.selected = False
         self.machine_selected.clear()
 
     def draw(self):
+        # Bottom counter panel behind ingredients.
         draw_rect(500, 80, 1000, 140, (200, 150, 100))
         try:
             arcade.draw_line(0, 145, 1000, 145, (80, 40, 20), 3)
